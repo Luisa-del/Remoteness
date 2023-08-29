@@ -1,0 +1,597 @@
+---
+title: "Remoteness analysis"
+subtitle: "Tutorial on how to prepare input data in R and QGIS and perform analysis in GEE"
+author: "Luisa Pflumm"
+date: '2023-05-09'
+output:
+  html_document:
+    code_folding: show
+    collapsed: no
+    toc: yes
+    toc_depth: 4
+    toc_float: yes
+  <span style="color: red;">text</span>
+---
+
+<style>
+body {
+text-align: justify}
+</style>
+
+<!-- #start_time <- Sys.time() -->
+<!-- #end_time <- Sys.time() -->
+<!-- #end_time - start_time -->
+
+
+```{r setup, include=FALSE}
+library(raster)
+library(sf)
+library(geodata)
+library(mapview)
+library(osmextract)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. Introduction
+
+This document provides a step-by-step tutorial on how to perform a remoteness analysis for a user-defined area using R, QGIS and Google Earth Engine. Remoteness indicates the distance to roads, but takes into account the cost to walk through terrain. It can serve as anthropogenic factor in wildlife studies, where it has been shown to be an important driver of species occurrence. *MORE ON APPLICATIONS?...*  
+  
+* Costs are calculated from a hiking function that considers slope. The function is also defined to take metabolic costs into account, because it has been shown that humans are typically not following least-time routes, especially in mountainous areas.
+* Drivable roads can serve as starting points from where the costs are then added up (cumulative costs) in order to assess remoteness. This can be points along drivable roads from OpenStreetMap (osm), or GPS points.
+* The drivable roads from where the costs are added up to determine remoteness should be within the study area, but furthermore also within a certain buffer area around the study area. This ensures that roads in the vicinity of the study area are also included in the calculation of remoteness and avoids distorted remoteness values at the border of the study area.
+* Some areas like water bodies are inaccessible and need to be masked out prior to the analysis.
+
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/logo_r.png) ![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/logo_qgis.png) ![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/logo_gee.png)  
+Input data for the remoteness analysis need to be prepared in R and QGIS. The remoteness analysis needs to be performed in Google Earth Engine.  
+  
+Using the province of Kâmpóng Thum in Cambodia as an example area, this tutorial presents in detail all steps required for the analysis.  
+**Figure: Final remoteness layer calculated from osm drivable roads and applied water mask.**
+
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/remoteness.png)
+  
+Useful information when performing remoteness analysis:  
+
+1. **Apply sufficient buffer around study area.** A buffer area of 10 km around the study area was considered large enough to ensure that roads that have a relevant influence on the remoteness values at the border of the Aoi are included in the analysis. The buffer value can be modified by the user (see section 2.1).
+2. **Select country for osm download.** [GADM](https://gadm.org/download_country.html) provides free and easy accessible country data at different subdivision levels (see section 2.1 & 2.2). 
+3. **Choose method for downloading OpenStreetMap data.** There are different ways to download and prepare osm data (more info see section 2.3).
+4. **Carefully prepare osm roads.** The conversion of the osm roads to starting points can vary in effort / time depending on the size of the downloaded data set. It requires the selection of drivable road categories, clipping the data set to the buffered aoi, and converting the line features to points along these lines at a regular spacing (see section 3.1 - 3.5).
+5. **Check osm roads before interpolation.** If possible (!), verify whether the selected road dataset represents the road network of the study area as good as possible.  
+OpenStreetMap is a community-based, freely available, editable map service and provides free and open source geographical data sets of natural or man made features. Given that it is edited mainly by volunteers with different mapping skills, the completeness and quality of its annotations are heterogeneous across different geographical locations, and updates are more regularly in urban areas than in rural areas. 
+6. **Use three softwares to perform analysis (R, QGIS, Google Earth Engine).** R and QGIS must be used to prepare the osm data and create the starting points. The final remoteness analysis will be performed in Google Earth Engine (GEE).
+    + Filtering for road categories is quicker and easier to perform in R (especially with larger data sets). 
+    + The conversion of road lines to points can only be performed in QGIS. 
+    + All other processing steps can be performed in either R or QGIS, depending on the user's preference.  
+Most of the steps in this tutorial are performed in R and the code is provided. The steps performed in QGIS or GEE are described with screenshots.
+7. **Carefully select data for GEE upload.** Only upload starting points and study area (not buffered study area!). Apply the same buffer in the GEE script that was used to create the starting points (see section 4).
+8. **GPS points available?** In case you want to use other starting point for your analysis (e.g GPS points along the road network, villages,...) you only need to upload your study area and the starting point dataset to GEE. Consider a buffer!
+
+
+
+# 2. Import data into R
+
+## 2.1 Define parameters
+
+```{r}
+# Set path to working directory
+wd <- "D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial"
+
+# For GADM download set name, iso code and level for required country
+name <- "cambodia"
+iso <- "KHM"
+level <- 1
+
+# Set buffer that should be applied to aoi
+buffer <- 10000
+
+# Set EPSG code of a metric CRS (e.g utm)
+crs_m <- 32648
+```
+  
+  
+## 2.2 Country data (gadm)
+
+**Download country data.**  
+GADM provides maps and spatial data for all countries and their sub-divisions. You can download your required country data from inside R. Alternatively download from [website](https://gadm.org/download_country.html).
+
+```{r}
+# Get or import country data
+country <- geodata::gadm(iso, level=level, path = tempdir())
+country <- st_as_sf(country)
+
+# # Export to folder
+# st_write(country,
+#          dsn = file.path(wd, "data/gadm/"),
+#          layer = paste0("gadm_", name, "_", level),
+#          driver = "ESRI Shapefile")
+```
+  
+**Select or import aoi.**  
+In this tutorial the province of Kâmpóng Thum is chosen as aoi. Define/import your aoi for which you want to calculate remoteness.
+
+```{r}
+# Select province as example aoi, or import your Area of Interest
+province <- "Kâmpóng Thum"
+aoi <- country[(country$NAME_1 %in% province),]
+
+# Export to folder
+# st_write(aoi,
+#          dsn = file.path(wd, "data/gadm/"),
+#          layer = "aoi",
+#          driver = "ESRI Shapefile")
+
+```
+
+```{r class.source = 'fold-hide'}
+mapview(country, layer.name = name) + mapview(aoi, col.regions = "orange")
+```
+*Figure: Interactive map of study area in cambodia.*
+  
+  
+## 2.3 OpenStreetMap data
+  
+**Download OpenStreetMap (osm) data by country.**  
+  
+* Download data in osm.pbf format!
+* PBF files are generally much smaller than OSM XML or SHP files.
+* OpenStreetMap Protocolbuffer Binary Format (PBF) is an open source transfer format for vector GIS data created by the OpenStreetMap community.  More info [here](https://wiki.openstreetmap.org/wiki/PBF_Format). A provider of osm data is the Geofabrik Download Server.  
+  
+* **Options 1&2:** Either you download the osm data on a country-based level and optionally clip it to your buffered study area in R ...
+* **Option 3:** ... or you download the data with the QGIS plugin QuickOSM (only possible for small study areas, needs to be tried out).
+  
+  
+**Option 1:** download osm.pbf data from Geofabrik with `osmextract` package in R. 
+
+```{r}
+# Insert name of country or insert aoi (sf file!)
+its_details <- oe_match(name) # alternative: oe_match(aoi)
+
+# Download data to folder
+its_pbf <- oe_download(
+  file_url = its_details$url,
+  file_size = its_details$file_size,
+  #provider = "test",
+  download_directory = file.path(wd, "data/osm")
+) # --> Time difference of 7.108055 secs
+```
+  
+  
+**Option 2:** download osm.pbf data from [Geofabrik website](https://download.geofabrik.de/) and import to R.  
+
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/geofabrik_website.png)
+<!-- ```{r} -->
+<!-- # Download osm.pbf data from Geofabrik website:  -->
+<!-- knitr::include_graphics(file.path(wd, "graphics/geofabrik_website.png")) -->
+<!-- ``` -->
+  
+  
+**Option 3: download osm.pbf data via QuickOSM plugin in QGIS.**  
+  
+* Only possible for small study areas, QGIS crashes when aoi is too large. Not possible for whole countries.
+* When choosing that option, you can already filter the required drivable road categories manually in QGIS and skip section 3.1 - 3.4 in this tutorial.
+
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/qgis_quickosm1.png)
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/qgis_quickosm2.png)
+
+
+<!-- ## (2.4 Natural Earth data) -->
+
+<!-- ```{r} -->
+
+<!-- ``` -->
+
+
+
+  
+  
+# 3. Create starting points from osm roads in R and QGIS
+
+## 3.1 Import osm.pbf roads
+
+Import duration depends on size. For cambodia it takes ~ 30 seconds, for larger data sets it can take up to several minutes.
+
+```{r results = FALSE, message = FALSE, warning = FALSE}
+# list files in folder
+list.files(file.path(wd, "data/osm"))
+
+# Import osm.pbf file
+roads <- st_read(# filename downloaded with osmextract (option 1)
+                dsn = file.path(wd, "data/osm/geofabrik_cambodia-latest.osm.pbf"),
+
+                # filename downloaded from website (option 2)
+                #dsn = file.path(wd, "data/osm/cambodia-latest.osm.pbf"),
+
+                query = "select highway from lines")
+
+```
+  
+## 3.2 Select required road categories
+
+Select only drivable road categories. More info on specific road categories at https://wiki.openstreetmap.org/wiki/Key:highway  
+  
+Check for NA.
+
+```{r}
+# Check for NA
+any(is.na(roads))
+
+# If NA is present, rename to "unknown" and optional check whether to include or not
+roads$highway[is.na(roads$highway)] <- "unknown"
+
+# # Optional map or export only "unknown" roads to check if they are drivable or not
+# na <- roads[roads$highway %in% "unknown",]
+# mapview(na)   # -> check in R
+# st_write(na, file.path(wd, "data/osm/na_unknown_roads.shp")) # -> check e.g in QGIS
+```
+
+Select drivable road categories.
+
+```{r}
+# List single road categories in alphabetical order
+sort(unique(roads$highway))
+
+# Select only drivable roads (check if is complete, "unknown" roads were NOT included in this tutorial)
+include <- c("living_street", "motorway", "motorway_link", "primary", "primary_link", "proposed", "residential", "road", "secondary", "secondary_link", "tertiary", "tertiary_link", "trunk", "trunk_link", "unclassified")     
+
+
+roads <- roads[roads$highway %in% include,]
+```
+
+  
+## 3.3 Convert to metric CRS
+
+First transform to metric coordinate reference system.  
+Then apply buffer to aoi and clip roads to buffered aoi.
+
+```{r}
+# Convert to metric CRS
+country_m <- st_transform(country, crs_m)
+aoi_m <- st_transform(aoi, crs_m)
+roads_m <- st_transform(roads, crs_m)
+```
+  
+## 3.4 Clip to buffered aoi
+
+```{r warning=FALSE, message=FALSE}
+# Clip roads to buffered aoi
+roads_m_aoi <- st_intersection(roads_m, st_buffer(aoi_m, buffer))
+
+# Export to folder
+# st_write(roads_m_aoi,
+#          dsn = file.path(wd, "data/osm/"),
+#          layer = "aoi_buff_drivable_roads",
+#          driver = "ESRI Shapefile")
+```
+
+```{r class.source = 'fold-hide'}
+# Map roads
+mapview(country_m, layer.name = name, col.regions = "black", alpha.regions = 0) +
+  mapview(aoi_m, layer.name = "aoi", col.regions = "orange") +
+  mapview(roads_m_aoi, layer.name = "osm drivable roads")
+```
+
+
+
+info: if other starting points ... 
+
+  
+## 3.5 Convert lines to points (QGIS)
+
+Osm roads are multiline features, but the algorithm that calculates remoteness requires starting points. Therefore, lines need to be converted to equal spaces points. Using the "Points along geometry" tool in QGIS (v.3.16.10) is the easiest and fastest way to perform this step. The distance between the points was set to 100 meter in this tutorial.
+
+  
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/qgis_100mpoints_1.png)
+
+<!-- ```{r} -->
+<!-- knitr::include_graphics(file.path(wd, "graphics/qgis_100mpoints_1.png")) -->
+<!-- ``` -->
+
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/qgis_100mpoints_2.png)
+
+<!-- ```{r} -->
+<!-- knitr::include_graphics(file.path(wd, "graphics/qgis_100mpoints_2.png")) -->
+<!-- ``` -->
+
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/qgis_100mpoints_3.png)
+
+<!-- ```{r} -->
+<!-- knitr::include_graphics(file.path(wd, "graphics/qgis_100mpoints_3.png")) -->
+<!-- ``` -->
+
+
+
+<!-- Option 2 -> find better -->
+
+<!-- ```{r} -->
+
+<!-- library(rgeos) -->
+<!-- numOfPoints  <-  gLength(as_Spatial(aoi_road_utm)) / 3 -->
+<!-- road_points_utm <- spsample(as_Spatial(aoi_road_utm), n = numOfPoints, type = "regular") -->
+<!-- plot(road_points_utm) -->
+
+
+<!-- road_points_utm2 <- gInterpolate(as_Spatial(aoi_road_utm), 100, normalized = TRUE) -->
+<!-- plot(road_points_utm2) -->
+<!-- crs(road_points_utm2) -->
+<!-- st_write(st_as_sf(road_points_utm2), file.path(wd, "data/osm/aoi_buff_drivable_roads_100mpoints_r2.shp")) -->
+
+
+<!-- poi <- st_line_sample(st_as_sfc(aoi_road_utm), density = 1/100, type = "regular") -->
+<!-- ``` -->
+
+  
+# 4. Remoteness analysis in GEE
+
+Google Earth Engine (GEE) is a cloud computing platform, powered by Google cloud infrastructure. It offers new opportunities for Big Data analyses with huge data sets up to petabyte scale, and analyses are run on Google servers, which have much higher computational power and storage capacity than most local computer sources.  
+  
+The remoteness analysis can only be performed in GEE. Users must log in with a Google account in order to work with the user interface (uploading input file, running the script, exporting products). Hence it is not open source software but costfree.
+  
+More information on how to create a Google Earth Engine account can be found [here](https://developers.google.com/earth-engine/guides/getstarted).  
+To get familiar with the user interface check out [this page](https://developers.google.com/earth-engine/guides/playground).  
+  
+Useful information on script and analysis performance in GEE:  
+  
+* The script is designed in a user friendly way, because only the study area and the access points have to be imported by the user in the beginning.  
+* The script allows the exports of the cost raster with the unit pace (hour per meter) and the cumulative cost (remoteness) raster with the unit in hours.  
+* The larger the study area, the longer it can take to export the data.  
+  
+  
+
+
+
+>[Follow this link to open the remoteness analysis script in GEE.](https://code.earthengine.google.com/a0675d2189dc63bee738b16d84e18ec9)
+
+
+## 4.1 Run demo
+
+Open script link and "Run" demo to see how script performs remoteness analysis with example aoi and access points.
+
+GEE script variables: **geometry**, **startpoints**
+
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/GEE0_demo.png)
+
+<!-- ```{r} -->
+<!-- knitr::include_graphics(file.path(wd, "graphics/GEE0_demo.png")) -->
+<!-- ``` -->
+
+Before working with own data, comment out demo parameters!
+
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/GEE0-1_demo.png)
+
+<!-- ```{r} -->
+<!-- knitr::include_graphics(file.path(wd, "graphics/GEE0-1_demo.png")) -->
+<!-- ``` -->
+  
+## 4.2 Import user parameters
+
+GEE script variables: **geometry**, **startpoints**
+
+Upload area of interest and access points (previously created in R / QGIS) as shapefiles in 'Assets' tab.
+
+1. Click "NEW".
+2. Click "Shape files".
+3. Select or drag & drop file. Following shapefile extensions are needed: .shp, .prj, .shx, .dbf  
+-> optionally rename file of asset (dotted magenta line).  
+4. Click "UPLOAD".
+
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/GEE1_upload.png)
+
+<!-- ```{r} -->
+<!-- knitr::include_graphics(file.path(wd, "graphics/GEE1_upload.png")) -->
+<!-- ``` -->
+
+Uploaded files will appear soon in 'Assets' tab (left window, dotted magenta line). If not click "refresh" (solid magenta line).
+Copy the asset paths into script (dotted magenta lines in code editor).
+
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/GEE2_scriptinput.png)
+
+<!-- ```{r} -->
+<!-- knitr::include_graphics(file.path(wd, "graphics/GEE2_scriptinput.png")) -->
+<!-- ``` -->
+
+Optionally draw aoi as polygon on map. The file will automatically appear as "geometry" variable on top of the script.
+*In this case make sure all other "geometry" variables in the script (demo, asset import) are commented out.*
+
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/GEE3_draw_geometry.png)
+
+<!-- ```{r} -->
+<!-- knitr::include_graphics(file.path(wd, "graphics/GEE3_draw_geometry.png")) -->
+<!-- ``` -->
+  
+## 4.3 Modify other parameters
+
+GEE script variables: **watermask**, **occ**, **buffer**, **maxPixels**
+
+1. Set "T" (true) to mask out water areas or "F" (false) to not apply water mask. Information on global water occurrence is provided by the [Global Surface Water](https://developers.google.com/earth-engine/datasets/catalog/JRC_GSW1_4_GlobalSurfaceWater) data set.
+  + Optionally modify water **occ**urrence parameter to refine water mask, but this can be done later as well (see section 4.4).  
+
+2. Optionally change the buffer to be applied around aoi, but it should be the same buffer that was already applied in previous steps when clipping roads.
+
+3. Only modify maximum pixels if export fails. See section 4.5.
+
+Finally click "Run" at the top of the script (solid magenta line).
+
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/GEE4_other_parameter.png)
+
+<!-- ```{r} -->
+<!-- knitr::include_graphics(file.path(wd, "graphics/GEE4_other_parameter.png")) -->
+<!-- ``` -->
+  
+## 4.4 Inspect output
+
+After executing the script, some of the selected parameters will be displayed in the print console (right window, dotted magenta line).
+
+*Study area*, *starting points*, *cost raster* and the *cumulative cost raster (remoteness layer)* are added to the map (hover over layer panel box in map). Optionally modify visualization parameters of single layers When clicking on "settings" of respective layer, or uncheck layer if it should not be displayed in map.
+
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/GEE5_visualization.png)
+
+<!-- ```{r} -->
+<!-- knitr::include_graphics(file.path(wd, "graphics/GEE5_visualization.png")) -->
+<!-- ``` -->
+  
+**Refine water mask**
+
+If a water mask is applied (var **watermask = "T"**), 10 different cost raster are added to the map by default, based on different values for the probability of water occurrence (10%, 20%, ... 100%).
+
+This way the layers can be compared with each other (check / uncheck). If the water mask should be refined, the **occ** parameter must be modified and the script must be re-executed. The water mask applied to the images ready for export are based on the specified occurrence value.
+
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/GEE6_refine_watermask.png)
+
+<!-- ```{r} -->
+<!-- knitr::include_graphics(file.path(wd, "graphics/GEE6_refine_watermask.png")) -->
+<!-- ``` -->
+  
+**Figure: Compare the output rasters of the remoteness analysis after applying different water masks.**
+
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/refine_watermask.png)
+
+<!-- ```{r} -->
+<!-- knitr::include_graphics(file.path(wd, "graphics/refine_watermask.png")) -->
+<!-- ``` -->
+  
+## 4.5 Initiate Export
+
+Final image export needs to be initiated in 'Tasks Tab' (right window).  
+1. Go to "Tasks" tab. 
+  
+2. Click "RUN" to initiate each export.  
+  
+-> Optionally modify default export parameters (dotted magenta line).  
+  
+  * For example, add name of aoi for better distinction.
+  * If CRS should be set e.g to UTM, insert respective EPSG code.
+  * A lower scale reduces output file size, higher scale than 30 meter resolution is not recommended.
+  * In Google Drive, the GEE_Export folder will be automatically created if not already existing. Can change name to already existing folder.  
+  
+  
+  
+3. Click "RUN" to finally initiate the export.
+
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/GEE7_initiate_export.png)
+
+<!-- ```{r} -->
+<!-- knitr::include_graphics(file.path(wd, "graphics/GEE7_initiate_export.png")) -->
+<!-- ``` -->
+
+Depending of size of study area, an image export can take from minutes to days. Multiple exports can be run in parallel.
+
+
+For example, if **maxPixels** parameter would have been set to 4000, an error message would occur after initiating the final export task (see Figure). In this case, the maxPixels value (see section 4.3) would have to be increased (see error message) and the script and export task would have to be executed again.
+
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/GEE8_maxpixels_error.png)
+
+<!-- ```{r} -->
+<!-- knitr::include_graphics(file.path(wd, "graphics/GEE8_maxpixels_error.png")) -->
+<!-- ``` -->
+
+
+
+
+<!-- ## 2. Prepare osm water -->
+
+<!-- Info ... -->
+
+<!-- ### Import osm water&river -->
+
+<!-- Import duration depends on size. For cambodia it takes ~ 1.5 minutes, for larger data sets it can take up to several minutes. -->
+
+<!-- ```{r} -->
+<!-- # list files in folder -->
+<!-- list.files(file.path(wd, "data/osm")) -->
+
+<!-- #start_time <- Sys.time() -->
+<!-- natural <- st_read(dsn = file.path(wd, "data/osm/cambodia-latest.osm.pbf"), -->
+<!--                  query = "select natural, other_tags from multipolygons") -->
+<!-- #end_time <- Sys.time() -->
+<!-- #end_time - start_time -->
+<!-- ``` -->
+
+<!-- Select only required water categories. More info on specific water categories at https://wiki.openstreetmap.org/wiki/Key:water  -->
+
+<!-- ```{r} -->
+<!-- # # List single road categories in alphabetical order -->
+<!-- # sort(unique(water$natural)) -->
+<!-- # sort(unique(water_bind$other_tags)) -->
+
+<!-- # Select water from natural -->
+<!-- water <- natural[which(natural$natural == "water"),] -->
+
+<!-- # Select ... -->
+<!-- water_subset <- water[sort(c(grep("river", water$other_tags), -->
+<!--                              grep("reservoir", water$other_tags))),] -->
+<!-- # Combine ... -->
+<!-- water_bind <- rbind(water, water_subset) -->
+
+<!-- # # Export to folder -->
+<!-- # st_write(water_bind, -->
+<!-- #          dsn = file.path(wd, "data/osm/"), -->
+<!-- #          layer = paste0(name, "_water_river"), -->
+<!-- #          driver = "ESRI Shapefile") -->
+<!-- ``` -->
+
+<!-- Check if all geometries are valid, if FALSE fix geometries -->
+
+<!-- ```{r} -->
+<!-- all(st_is_valid(water_bind)) -->
+<!-- ``` -->
+
+<!-- Fix geometries in QGIS, works easy and fast.  -->
+<!-- -> st_make_valid in R takes too long, produces big data and is more likely erroneous... -->
+<!-- <!-- #start_time <- Sys.time() -> -->
+<!-- <!-- #water_bind_val <- st_make_valid(water_bind) -> -->
+<!-- <!-- #end_time <- Sys.time() -> -->
+<!-- <!-- #end_time - start_time -> -->
+<!-- <!-- # -> Time difference of 6.085331 minutes -> -->
+<!-- ```{r} -->
+<!-- knitr::include_graphics(file.path(wd, "graphics/qgis_fix_geometries1.png")) -->
+<!-- ``` -->
+
+<!-- ### Prepare water data  -->
+
+<!-- Clip water to aoi. Apply 10 km buffer. -->
+
+<!-- Transformation to metric CRS. -->
+
+<!-- ```{r} -->
+<!-- # Import fixed data set -->
+<!-- water_bind_fix <- st_read(file.path(paste0(wd, "/data/osm/", name, "_water_river_fixgeom.shp"))) -->
+
+<!-- # Transform to metric CRS -->
+<!-- water_bind_fix_m <- st_transform(water_bind_fix, crs_m) -->
+
+<!-- # Clip to buffered aoi -->
+<!-- water_bind_fix_aoi <- st_intersection(water_bind_fix_m, st_buffer(aoi_m, buffer)) -->
+<!-- # -> Time difference of 4.369742 secs -->
+
+<!-- # # Export to folder -->
+<!-- # st_write(water_bind_fix_aoi, -->
+<!-- #          dsn = file.path(wd, "data/osm/"), -->
+<!-- #          layer = "aoi_buff_water_river", -->
+<!-- #          driver = "ESRI Shapefile") -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- ``` -->
+
