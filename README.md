@@ -30,7 +30,7 @@ This is a step-by-step tutorial on how to perform a remoteness analysis for user
 2. **Apply sufficient buffer around study area.** A buffer area of 10 km around the study area was considered large enough to ensure that roads that have a relevant influence on the remoteness values at the border of the AOI are included in the analysis. The buffer value can be modified by the user ---------------------------(see section ...).
 
 3. **Choose software to download & prepare osm data (size dependent!).** You need to try what's best for you. The larger the study area and amount of data, the longer the processing!
-    + Simplest is to use the **"QuickOSM-plugin"** from QGIS for *smaller* areas like National Parks or province borders. Here you can download the data already at the size of your buffered AOI and filter it by drivable road categories -------------------(see section ...). If the study area is *too large* for QuickOSM (like a whole country), either use smaller tiles in QuickOSM,
+    + Simplest is to use the **"QuickOSM-plugin"** from QGIS for *smaller* areas like national parks or province borders. Here you can download the data already at the size of your buffered AOI and filter it by drivable road categories -------------------(see section ...). If the study area is *too large* for QuickOSM (like a whole country), either use smaller tiles in QuickOSM,
     + or download and prepare the data in R. Here you can download the data on a country level, filter by drivable road categories and then optionally further clip or merge to your buffered AOI -----------------------------(more info see section ...). 
 
 4. **If possible (!) verify osm roads.** OpenStreetMap is a community-based, freely available, editable map service and provides free and open source geographical data sets of natural or man made features. Given that it is edited mainly by volunteers with different mapping skills, the completeness and quality of its annotations are heterogeneous across different geographical locations, and updates are more regularly in urban areas than in rural areas. If possible, verify whether the selected road data represents the road network of the study area as good as possible. 
@@ -121,7 +121,9 @@ mapview(country, layer.name = name) + mapview(aoi, col.regions = "orange")
 2. Enable or install QuickOSM plugin and open it (click on magnifying glass icon).
 <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/qgis_quickosm1.png">
 
-3. 
+3. Then choose your buffered (!) AOI (1), select the osm key Highway/Streets (2), and from the listed elements remove all categories that are not drivable by car or motorcycle (3).
+4. Under the Advanced tab, only select way, lines, and multiline-strings. That can avoid errors.
+5. Then click "Run query" (4) and the filtered osm road will be downloaded and imported to the QGIS project as a temporal layer. Optionally check the attribute table, and save it on your local computer in a metric coordinate system (here UTM, EPSG 32648). This is important for the next step.
 <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/qgis_quickosm2.png">
 
 
