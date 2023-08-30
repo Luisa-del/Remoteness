@@ -1,13 +1,11 @@
 # Remoteness analysis
 
-This document provides a step-by-step tutorial on how to perform a remoteness analysis for a user-defined areas.
+This document provides a step-by-step tutorial on how to perform a remoteness analysis for a user-defined areas. This tutorial is split into two parts:
+1. Prepare input data using QGIS (optionally R) ![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/logo_qgis.png) 
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/logo_r.png)
+2. Perform remoteness analysis in Google Earth Engine (GEE) ![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/logo_gee.png) 
 
 ## Overview
-
-* This tutorial is split into two parts:
-    1. Prepare input data using QGIS (optionally R) ![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/logo_qgis.png) 
-![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/logo_r.png)
-    2. Perform remoteness analysis in Google Earth Engine (GEE) ![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/logo_gee.png) 
 
 * Remoteness indicates the distance to roads, but takes into account the cost to walk through terrain. It can serve as anthropogenic factor in wildlife studies, where it has been shown to be an important driver of species occurrence.
   
