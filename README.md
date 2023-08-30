@@ -144,11 +144,12 @@ mapview(country, layer.name = name) + mapview(aoi, col.regions = "orange")
 *Figure: Province Kâmpóng Thum (study area) in cambodia.*
 <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/aoi.PNG">
 
-### 1.2 Download osm data
+### 2.2 Download osm data
+
+tba...
 
 
-
-### 1.3 Convert lines to points 
+### 2.3 Convert lines to points 
 
 Import the filtered osm roads to QGIS and follow instructions from [here](#13-Convert-lines-to-points)
 
@@ -156,11 +157,128 @@ Import the filtered osm roads to QGIS and follow instructions from [here](#13-Co
 
 
 
+## 4. Perform remoteness analysis
+
+* Google Earth Engine (GEE) is a cloud computing platform, powered by Google cloud infrastructure. It offers new opportunities for Big Data analyses with huge data sets up to petabyte scale, and analyses are run on Google servers, which have much higher computational power and storage capacity than most local computer sources.  
+  
+* The remoteness analysis can only be performed in GEE. Users must log in with a Google account in order to work with the user interface (uploading input file, running the script, exporting products). Hence it is not open source software but costfree.
+  
+* More information on how to create a Google Earth Engine account can be found [here](https://developers.google.com/earth-engine/guides/getstarted).  
+* To get familiar with the user interface check out [this page](https://developers.google.com/earth-engine/guides/playground).  
+  
+**Useful information on script and analysis performance in GEE:**
+  
+* The script is designed in a user friendly way, because only the study area and the access points have to be imported by the user in the beginning.  
+* The script allows the exports of the cost raster with the unit pace (hour per meter) and the cumulative cost (remoteness) raster with the unit in hours.  
+* The larger the study area, the longer it can take to export the data.  
+  
+
+>[Follow this link to open the remoteness analysis script in Google Earth Engine.](https://code.earthengine.google.com/a0675d2189dc63bee738b16d84e18ec9)
 
 
+### 4.1 Run demo
 
-## 3. Perform remoteness analysis
+Open script link and "Run" demo to see how script performs remoteness analysis with example aoi and access points.
+
+GEE script variables: **geometry**, **startpoints**
+
+<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/GEE0_demo.png">
+
+Before working with own data, comment out demo parameters!
+
+<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/GEE0-1_demo.png">
+
+### 4.2 Import user parameters
+
+GEE script variables: **geometry**, **startpoints**
+
+Upload area of interest and access points (previously created in QGIS or R) as shapefiles in *Assets*-tab.
+
+1. Click "NEW".
+2. Click "Shape files".
+3. Select or drag & drop file. Following shapefile extensions are needed: .shp, .prj, .shx, .dbf; *(optionally rename file of asset (dotted magenta line)*.  
+4. Click "UPLOAD".
+
+<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/GEE1_upload.png">
+
+Uploaded files will appear soon in *Assets*-tab (left window, dotted magenta line). If not click "refresh" (solid magenta line).
+Copy the asset paths into script (dotted magenta lines in code editor).
+
+<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/GEE2_scriptinput.png">
+
+Optionally draw aoi as polygon on map. The file will automatically appear as **geometry**-variable on top of the script.
+*In this case make sure all other "geometry" variables in the script (demo, asset import) are commented out.*
+
+<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/GEE3_draw_geometry.png">
+  
+## 4.3 Modify other parameters
+
+GEE script variables: **watermask**, **occ**, **buffer**, **maxPixels**
+
+1. Set "T" (true) to mask out water areas or "F" (false) to not apply water mask. Information on global water occurrence is provided by the [Global Surface Water](https://developers.google.com/earth-engine/datasets/catalog/JRC_GSW1_4_GlobalSurfaceWater) data set.
+  + Optionally modify water **occ**urrence parameter to refine water mask, but this can be done later as well (see section 4.4).  
+
+2. Optionally change the buffer to be applied around aoi, but it should be the same buffer that was already applied in previous steps when clipping roads.
+
+3. Only modify maximum pixels if export fails. See section 4.5.
+
+Finally click "Run" at the top of the script (solid magenta line).
+
+<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/GEE4_other_parameter.png">
+
+  
+## 4.4 Inspect output
+
+After executing the script, some of the selected parameters will be displayed in the print console (right window, dotted magenta line).
+
+*Study area*, *starting points*, *cost raster* and the *cumulative cost raster (remoteness layer)* are added to the map (hover over layer panel box in map). Optionally modify visualization parameters of single layers When clicking on "settings" of respective layer, or uncheck layer if it should not be displayed in map.
+
+<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/GEE5_visualization.png">
+
+<!-- ```{r} -->
+<!-- knitr::include_graphics(file.path(wd, "graphics/GEE5_visualization.png")) -->
+<!-- ``` -->
+  
+**Refine water mask**
+
+If a water mask is applied (var **watermask = "T"**), 10 different cost raster are added to the map by default, based on different values for the probability of water occurrence (10%, 20%, ... 100%).
+
+This way the layers can be compared with each other (check / uncheck). If the water mask should be refined, the **occ** parameter must be modified and the script must be re-executed. The water mask applied to the images ready for export are based on the specified occurrence value.
+
+<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/GEE6_refine_watermask.png">
+
+  
+**Figure: Compare the output rasters of the remoteness analysis after applying different water masks.**
+
+<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/refine_watermask.png">
+
+  
+## 4.5 Initiate Export
+
+Final image export needs to be initiated in 'Tasks Tab' (right window).  
+1. Go to "Tasks" tab. 
+  
+2. Click "RUN" to initiate each export.  
+  
+-> Optionally modify default export parameters (dotted magenta line).  
+  
+  * For example, add name of aoi for better distinction.
+  * If CRS should be set e.g to UTM, insert respective EPSG code.
+  * A lower scale reduces output file size, higher scale than 30 meter resolution is not recommended.
+  * In Google Drive, the GEE_Export folder will be automatically created if not already existing. Can change name to already existing folder.  
+  
+  
+  
+3. Click "RUN" to finally initiate the export.
+
+<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/GEE7_initiate_export.png">
 
 
+Depending of size of study area, an image export can take from minutes to days. Multiple exports can be run in parallel.
+
+
+For example, if **maxPixels** parameter would have been set to 4000, an error message would occur after initiating the final export task (see Figure). In this case, the maxPixels value (see section 4.3) would have to be increased (see error message) and the script and export task would have to be executed again.
+
+<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/GEE8_maxpixels_error.png">
 
 
