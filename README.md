@@ -2,8 +2,9 @@
 
 Tutorial on how to prepare input data in R and QGIS and perform analysis in Google Earth Engine (GEE).
 
-<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/remoteness.png" width = "500"> <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/remoteness.png" width = "500">
-*Example area (1): Remoteness layer for ???*                                               *Example area (2): Remoteness layer for province of Kâmpóng Thum, Cambodia
+| <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/remoteness.png" width = "500"> | <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/remoteness.png" width = "500"> |
+|----|----|
+| *Example area (1): Remoteness layer for ???*  |   *Example area (2): Remoteness layer for province of Kâmpóng Thum, Cambodia |
 
 
 
