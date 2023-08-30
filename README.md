@@ -161,6 +161,12 @@ Import the filtered osm roads to QGIS and follow instructions from [here](#13-Co
 
 
 
+
+
+
+
+
+
 ## 2. Perform remoteness analysis
 
 * Google Earth Engine (GEE) is a cloud computing platform, powered by Google cloud infrastructure. It offers new opportunities for Big Data analyses with huge data sets up to petabyte scale, and analyses are run on Google servers, which have much higher computational power and storage capacity than most local computer sources.  
@@ -177,7 +183,7 @@ Import the filtered osm roads to QGIS and follow instructions from [here](#13-Co
 * The larger the study area, the longer it can take to export the data.  
   
 
->[Follow this link to open the remoteness analysis script in Google Earth Engine.](https://code.earthengine.google.com/a0675d2189dc63bee738b16d84e18ec9)
+[Follow this link to open the remoteness analysis script in Google Earth Engine.](https://code.earthengine.google.com/a0675d2189dc63bee738b16d84e18ec9)
 
 
 ### 2.1 Run demo
