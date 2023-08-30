@@ -2,8 +2,8 @@
 
 This is a step-by-step tutorial on how to perform a remoteness analysis for user-defined areas. The tutorial is split into two parts:
 1. [Prepare input data](#1-prepare-input-data)
-    1. [in QGIS](#21-prepare-input-data-in-qgis)  <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/logo_qgis.png" width="20">
-    2. [in R](#22-prepare-input-data-in-r) <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/logo_r.png"> 
+    1. [in QGIS](#11-prepare-input-data-in-qgis)  <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/logo_qgis.png" width="20">
+    2. [in R](#12-prepare-input-data-in-r) <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/logo_r.png"> 
 2. [Perform remoteness analysis in Google Earth Engine (GEE)](#2-perform-remoteness-analysis) <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/logo_gee.png" width="20">
 
 ## Overview
@@ -50,9 +50,9 @@ This is a step-by-step tutorial on how to perform a remoteness analysis for user
 
 ![](".png")
 
-## 2. Prepare input data
+## 1. Prepare input data
 
-### 2.1 Prepare input data in QGIS
+### 1.1 Prepare input data in QGIS
 
 #### a. Download study area
 
@@ -180,7 +180,7 @@ Import the filtered osm roads to QGIS and follow instructions from [here](#13-Co
 >[Follow this link to open the remoteness analysis script in Google Earth Engine.](https://code.earthengine.google.com/a0675d2189dc63bee738b16d84e18ec9)
 
 
-### 4.1 Run demo
+### 2.1 Run demo
 
 Open script link and "Run" demo to see how script performs remoteness analysis with example aoi and access points.
 
@@ -192,7 +192,7 @@ Before working with own data, comment out demo parameters!
 
 <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/GEE0-1_demo.PNG">
 
-### 4.2 Import user parameters
+### 2.2 Import user parameters
 
 GEE script variables: **geometry**, **startpoints**
 
@@ -215,7 +215,7 @@ Optionally draw aoi as polygon on map. The file will automatically appear as **g
 
 <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/GEE3_draw_geometry.png">
   
-## 4.3 Modify other parameters
+## 2.3 Modify other parameters
 
 GEE script variables: **watermask**, **occ**, **buffer**, **maxPixels**
 
@@ -231,7 +231,7 @@ Finally click "Run" at the top of the script (solid magenta line).
 <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/GEE4_other_parameter.png">
 
   
-## 4.4 Inspect output
+## 2.4 Inspect output
 
 After executing the script, some of the selected parameters will be displayed in the print console (right window, dotted magenta line).
 
@@ -257,7 +257,7 @@ This way the layers can be compared with each other (check / uncheck). If the wa
 <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/refine_watermask.png">
 
   
-## 4.5 Initiate Export
+## 2.5 Initiate Export
 
 Final image export needs to be initiated in 'Tasks Tab' (right window).  
 1. Go to "Tasks" tab. 
@@ -270,7 +270,6 @@ Final image export needs to be initiated in 'Tasks Tab' (right window).
   * If CRS should be set e.g to UTM, insert respective EPSG code.
   * A lower scale reduces output file size, higher scale than 30 meter resolution is not recommended.
   * In Google Drive, the GEE_Export folder will be automatically created if not already existing. Can change name to already existing folder.  
-  
   
   
 3. Click "RUN" to finally initiate the export.
