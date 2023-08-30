@@ -53,12 +53,11 @@ This is a step-by-step tutorial on how to perform a remoteness analysis for user
 
 ### 1.1 Get shapefile of study data
 
-GADM provides spatial data for all countries and their sub-divisions. You can download your required country shape file either from their [website](https://gadm.org/download_country.html) or from inside R.
-
-
-## 2.1 Define parameters
+GADM provides spatial data for all countries and their sub-divisions. You can download your required country shape file either from their [website](https://gadm.org/download_country.html) or inside R.
 
 ```{r}
+### Define parameters
+
 # Set path to working directory
 wd <- "D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial"
 
@@ -74,13 +73,9 @@ buffer <- 10000
 crs_m <- 32648
 ```
   
-  
-## 2.2 Country data (gadm)
-
-**Download country data.**  
-
-
 ```{r}
+### Download country data 
+
 # Get or import country data
 country <- geodata::gadm(iso, level=level, path = tempdir())
 country <- st_as_sf(country)
@@ -92,10 +87,9 @@ country <- st_as_sf(country)
 #          driver = "ESRI Shapefile")
 ```
   
-**Select or import aoi.**  
-In this tutorial the province of Kâmpóng Thum is chosen as aoi. Define/import your aoi for which you want to calculate remoteness.
-
 ```{r}
+### Select or import aoi
+
 # Select province as example aoi, or import your Area of Interest
 province <- "Kâmpóng Thum"
 aoi <- country[(country$NAME_1 %in% province),]
@@ -108,6 +102,12 @@ aoi <- country[(country$NAME_1 %in% province),]
 
 ```
 
+```{r class.source = 'fold-hide'}
+mapview(country, layer.name = name) + mapview(aoi, col.regions = "orange")
+```
+*Figure: Interactive map of study area in cambodia.*
+
+![](".png")
 
 
 
