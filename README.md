@@ -110,25 +110,33 @@ mapview(country, layer.name = name) + mapview(aoi, col.regions = "orange")
 
 ![](".png")
 
-### 1.2 Get OpenStreetMap data
+### 1.2 Get OpenStreetMap data from QGIS
 
-**Option 1: download data via QuickOSM plugin in QGIS**  
+**Download data via "QuickOSM"-plugin**  
   
-* Only possible for *smaller* study areas like national parks or provinces. Not possible for whole countries - QGIS crashes if AOI is too large!
-* When choosing that option, you can already filter the required drivable road categories manually in QGIS and skip section 3.1 - 3.4 in this tutorial.
+*Only possible for *smaller* study areas like national parks or provinces. Not possible for whole countries - QGIS crashes if AOI is too large!*
 
 1. Import your study area to QGIS, open the buffer tool and create a 10 km buffer around it. Therefore, the layer should be stored with a metric coordinate system, like in this case UTM zone 48N (EPSG: 32648) or Pseudo-Mercator (EPSG: 3857).
 2. Enable or install QuickOSM plugin and open it (click on magnifying glass icon).
 3. Then choose your buffered (!) AOI (1), select the osm key Highway/Streets (2), and from the listed elements remove all categories that are not drivable by car or motorcycle (3).
-4. Under the Advanced tab, only select way, lines, and multiline-strings. That can avoid errors.
-5. Then click "Run query" (4) and the filtered osm road will be downloaded and imported to the QGIS project as a temporal layer. Optionally check the attribute table, and save it on your local computer in a metric coordinate system (here UTM, EPSG 32648). This is important for the next step.
+4. Open the *Advanced*-tab and only select way, lines, and multiline-strings. This can avoid errors.
+5. Then click "Run query" (4) and the filtered osm road will be downloaded and imported to the QGIS project as a temporal layer. Optionally check the attribute table, and save the file on your local computer in a metric coordinate system (here UTM, EPSG 32648). This is important for the next step!
 
 <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/qgis_quickosm1.png">
 <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/qgis_quickosm2.png">
 
+![](".png")
 
+**Convert lines to points via "Points along geometry"-Tool**
 
+Osm roads are multiline features, but the algorithm that calculates remoteness requires starting points. Therefore, lines need to be converted to equal spaced points. Using the “Points along geometry” tool in QGIS is the easiest and fastest way to perform this step. The distance between the points was set to 100 meter in this tutorial.
 
+1. Open the tool and select the filtered osm road dataset with a metric coordinate system.
+2. Set the distance parameter and save file to your local computer.
+
+<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/qgis_100mpoints_1.png.png">
+<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/qgis_100mpoints_2.png.png">
+<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/qgis_100mpoints_3.png.png">
 
 
 
