@@ -1,10 +1,10 @@
 # Remoteness analysis
 
 This is a step-by-step tutorial on how to perform a remoteness analysis for user-defined areas. The tutorial is split into two parts:
-1. [Prepare input data](#1Prepare-input-data-in-QGIS)
-    1. [using QGIS](#1Prepare-input-data-in-QGIS)  <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/logo_qgis.png" width="20">
-    2. [using R](#1Prepare-input-data-in-R) <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/logo_r.png"> 
-2. [Perform remoteness analysis in Google Earth Engine (GEE)](#2perform-remoteness-analysis) <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/logo_gee.png" width="20">
+1. [Prepare input data](#1-prepare-input-data) #1-prepare-input-data-in-qgis
+    1. [in QGIS](#21-prepare-input-data-in-qgis)  <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/logo_qgis.png" width="20">
+    2. [in R](#22-prepare-input-data-in-r) <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/logo_r.png"> 
+2. [Perform remoteness analysis in Google Earth Engine (GEE)](#2-perform-remoteness-analysis) <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/logo_gee.png" width="20">
 
 ## Overview
 
@@ -50,15 +50,17 @@ This is a step-by-step tutorial on how to perform a remoteness analysis for user
 
 ![](".png")
 
-## 1. Prepare input data in QGIS
+## 2. Prepare input data
 
-### 1.1 Download study area
+### 2.1 Prepare input data in QGIS
+
+#### a. Download study area
 
 GADM provides spatial data for all countries and their sub-divisions. You can download your required country shape file either from their [website](https://gadm.org/download_country.html) 
 
 ![](".png")
 
-### 1.2 Download osm data
+#### b. Download osm data
 
 Download OpenStreetMap (osm) data via **"QuickOSM"-plugin** in QGIS. However, this is only possible for *smaller* study areas like national parks or provinces. Not possible for whole countries - QGIS crashes if AOI is too large!
 
@@ -73,7 +75,7 @@ Download OpenStreetMap (osm) data via **"QuickOSM"-plugin** in QGIS. However, th
 
 ![](".png")
 
-### 1.3 Convert lines to points 
+#### c. Convert lines to points 
 
 Osm roads are multiline features, but the algorithm that calculates remoteness requires starting points. Therefore, lines need to be converted to equal spaced points. Using the **"Points along geometry"-tool** in QGIS is the easiest and fastest way to perform this step. The distance between the points was set to 100 meter in this tutorial.
 
@@ -86,9 +88,9 @@ Osm roads are multiline features, but the algorithm that calculates remoteness r
 
 
 
-## 2. Prepare input data in R
+### 1.2 Prepare input data in R
 
-### 2.1 Download study area
+#### a. Download study area
 
 GADM provides spatial data for all countries and their sub-divisions. You can download your required country shape file from R.
 
@@ -146,12 +148,12 @@ mapview(country, layer.name = name) + mapview(aoi, col.regions = "orange")
 *Figure: Province Kâmpóng Thum (study area) in cambodia.*
 <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/aoi.PNG">
 
-### 2.2 Download osm data
+#### b. Download osm data
 
 tba...
 
 
-### 2.3 Convert lines to points 
+#### c. Convert lines to points 
 
 Import the filtered osm roads to QGIS and follow instructions from [here](#13-Convert-lines-to-points)
 
@@ -159,7 +161,7 @@ Import the filtered osm roads to QGIS and follow instructions from [here](#13-Co
 
 
 
-## 4. Perform remoteness analysis
+## 2. Perform remoteness analysis
 
 * Google Earth Engine (GEE) is a cloud computing platform, powered by Google cloud infrastructure. It offers new opportunities for Big Data analyses with huge data sets up to petabyte scale, and analyses are run on Google servers, which have much higher computational power and storage capacity than most local computer sources.  
   
