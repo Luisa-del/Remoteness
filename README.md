@@ -1,7 +1,7 @@
 # Remoteness analysis
 
 This is a step-by-step tutorial on how to perform a remoteness analysis for user-defined areas. The tutorial is split into two parts:
-1. [Prepare input data using QGIS (optionally R)](#1-Prepare-input-data) <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/logo_qgis.png" width="20"> <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/logo_r.png"> 
+1. [Prepare input data using QGIS ](#1-Prepare-input-data) <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/logo_qgis.png" width="20"> [or optionally R](#1-Prepare-input-data) <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/logo_r.png"> 
 2. [Perform remoteness analysis in Google Earth Engine (GEE)](#2-perform-remoteness-analysis) <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/logo_gee.png" width="20">
 
 ## Overview
