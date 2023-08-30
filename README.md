@@ -1,11 +1,15 @@
 # Remoteness analysis
 
-Tutorial on how to prepare input data in QGIS and R, and perform analysis in Google Earth Engine (GEE).
+Tutorial on how to prepare input data and perform remoteness analysis using QGIS, (optionally R,) and Google Earth Engine (GEE).
 
 *Figure: Remoteness layer for province of Kâmpóng Thum, Cambodia*
 <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/remoteness.png" width = "700">
 
+1. All input data can be prepared in QGIS, if the study area is too large fpr QuickOSM plugin we need to use both R and QGIS. ![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/logo_qgis.png) ![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/logo_r.png).
 
+2. Remoteness analysis will be performed in Google Earth Engine. ![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/logo_gee.png) 
+
+![](".png")
 
 ## Overview
 
@@ -21,11 +25,7 @@ This document provides a step-by-step tutorial on how to perform a remoteness an
 
 ![](".png")
 
-1. Input data will be prepared in QGIS and R. ![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/logo_qgis.png) ![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/logo_r.png).
 
-2. Remoteness analysis will be performed in Google Earth Engine. ![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/logo_gee.png) 
-
-![](".png")
 
 Example
 
