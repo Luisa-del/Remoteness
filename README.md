@@ -1,9 +1,8 @@
 # Remoteness analysis
 
 This is a step-by-step tutorial on how to perform a remoteness analysis for user-defined areas. The tutorial is split into two parts:
-1. [Prepare input data using QGIS (optionally R)](#1-Prepare-input-data) ![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/logo_qgis.png) 
-![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/logo_r.png)
-2. [Perform remoteness analysis in Google Earth Engine (GEE)](#2-perform-remoteness-analysis) ![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/logo_gee.png) 
+1. [Prepare input data using QGIS (optionally R)](#1-Prepare-input-data) <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/logo_r.png"> <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/logo_qgis.png">
+2. [Perform remoteness analysis in Google Earth Engine (GEE)](#2-perform-remoteness-analysis) <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/logo_gee.png">
 
 ## Overview
 
@@ -51,7 +50,7 @@ This is a step-by-step tutorial on how to perform a remoteness analysis for user
 
 ## 1. Prepare input data
 
-### 1.1 Get shapefile of study data
+### 1.1 Get shapefile of study area
 
 GADM provides spatial data for all countries and their sub-divisions. You can download your required country shape file either from their [website](https://gadm.org/download_country.html) or inside R.
 
@@ -118,8 +117,13 @@ mapview(country, layer.name = name) + mapview(aoi, col.regions = "orange")
 * Only possible for *smaller* study areas like national parks or provinces. Not possible for whole countries - QGIS crashes if AOI is too large!
 * When choosing that option, you can already filter the required drivable road categories manually in QGIS and skip section 3.1 - 3.4 in this tutorial.
 
-![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/qgis_quickosm1.png)
-![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/qgis_quickosm2.png)
+1. Import your study area to QGIS, open the buffer tool and create a 10 km buffer around it. Therefore, the layer should be stored with a metric coordinate system, like in this case UTM zone 48N (EPSG: 32648) or Pseudo-Mercator (EPSG: 3857).
+2. Enable or install QuickOSM plugin and open it (click on magnifying glass icon).
+<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/qgis_quickosm1.png">
+
+3. 
+<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/qgis_quickosm2.png">
+
 
 
 
