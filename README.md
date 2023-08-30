@@ -56,11 +56,9 @@ GADM provides spatial data for all countries and their sub-divisions. You can do
 
 ![](".png")
 
-### 1.2 Download OpenStreetMap data
+### 1.2 Download osm data
 
-**Download data via "QuickOSM"-plugin**  
-  
-*Only possible for *smaller* study areas like national parks or provinces. Not possible for whole countries - QGIS crashes if AOI is too large!*
+Download OpenStreetMap (osm) data via **"QuickOSM"-plugin** in QGIS. However, this is only possible for *smaller* study areas like national parks or provinces. Not possible for whole countries - QGIS crashes if AOI is too large!
 
 1. Import your study area to QGIS, open the buffer tool and create a 10 km buffer around it. Therefore, the layer should be stored with a metric coordinate system, like in this case UTM zone 48N (EPSG: 32648) or Pseudo-Mercator (EPSG: 3857).
 2. Enable or install QuickOSM plugin and open it (click on magnifying glass icon).
@@ -73,9 +71,9 @@ GADM provides spatial data for all countries and their sub-divisions. You can do
 
 ![](".png")
 
-**Convert lines to points via "Points along geometry"-Tool**
+### 1.3 Convert lines to points 
 
-Osm roads are multiline features, but the algorithm that calculates remoteness requires starting points. Therefore, lines need to be converted to equal spaced points. Using the “Points along geometry” tool in QGIS is the easiest and fastest way to perform this step. The distance between the points was set to 100 meter in this tutorial.
+Osm roads are multiline features, but the algorithm that calculates remoteness requires starting points. Therefore, lines need to be converted to equal spaced points. Using the **"Points along geometry"-tool** in QGIS is the easiest and fastest way to perform this step. The distance between the points was set to 100 meter in this tutorial.
 
 1. Open the tool and select the filtered osm road dataset with a metric coordinate system.
 2. Set the distance parameter and save file to your local computer.
@@ -87,6 +85,8 @@ Osm roads are multiline features, but the algorithm that calculates remoteness r
 
 
 ## 2. Prepare input data in R
+
+### 2.1 Download study area
 
 GADM provides spatial data for all countries and their sub-divisions. You can download your required country shape file from R.
 
@@ -143,6 +143,14 @@ mapview(country, layer.name = name) + mapview(aoi, col.regions = "orange")
 ```
 *Figure: Province Kâmpóng Thum (study area) in cambodia.*
 <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/aoi.PNG">
+
+### 1.2 Download osm data
+
+
+
+### 1.3 Convert lines to points 
+
+Import the filtered osm roads to QGIS and follow instructions from [here](#13-Convert-lines-to-points)
 
 ![](".png")
 
