@@ -103,9 +103,12 @@ aoi <- country[(country$NAME_1 %in% province),]
 ```
 
 ```{r class.source = 'fold-hide'}
+# Use mapview for interactive mapping
 mapview(country, layer.name = name) + mapview(aoi, col.regions = "orange")
 ```
-*Figure: Interactive map of study area in cambodia.*
+*Figure: Study area in cambodia.*
+<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/aoi.PNG">
+
 
 ![](".png")
 
