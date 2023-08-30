@@ -186,7 +186,7 @@ GEE script variables: **geometry**, **startpoints**
 
 Before working with own data, comment out demo parameters!
 
-<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/GEE0-1_demo.png">
+<img src="https://github.com/Luisa-del/Remoteness/blob/main/img/GEE0-1_demo.PNG">
 
 ### 4.2 Import user parameters
 
