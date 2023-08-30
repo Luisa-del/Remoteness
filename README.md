@@ -2,8 +2,8 @@
 
 Tutorial on how to prepare input data in QGIS and R, and perform analysis in Google Earth Engine (GEE).
 
+*Figure: Remoteness layer for province of Kâmpóng Thum, Cambodia*
 <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/remoteness.png" width = "700">
-*Example area (2): Remoteness layer for province of Kâmpóng Thum, Cambodia |
 
 
 
