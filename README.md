@@ -106,11 +106,30 @@ aoi <- country[(country$NAME_1 %in% province),]
 # Use mapview for interactive mapping
 mapview(country, layer.name = name) + mapview(aoi, col.regions = "orange")
 ```
-*Figure: Study area in cambodia.*
+*Figure: Province Kâmpóng Thum (study area) in cambodia.*
 <img src="https://github.com/Luisa-del/Remoteness/blob/main/img/aoi.PNG">
 
-
 ![](".png")
+
+### 1.2 Get OpenStreetMap data
+
+**Option 1: download data via QuickOSM plugin in QGIS**  
+  
+* Only possible for *smaller* study areas like national parks or provinces. Not possible for whole countries - QGIS crashes if AOI is too large!
+* When choosing that option, you can already filter the required drivable road categories manually in QGIS and skip section 3.1 - 3.4 in this tutorial.
+
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/qgis_quickosm1.png)
+![](D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial/graphics/qgis_quickosm2.png)
+
+
+
+
+
+
+
+
+
+
 
 
 
