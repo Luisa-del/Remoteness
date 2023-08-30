@@ -42,8 +42,71 @@ This is a step-by-step tutorial on how to perform a remoteness analysis for user
 
 7. **GPS points available?** In case you want to use other starting point for your analysis (e.g GPS points along the road network, villages,...) you only need to upload your study area and the starting point dataset to GEE. Consider a buffer!
 
+![](".png")
+
+**In the tutorial below, the province of Kâmpóng Thum (Cambodia) will be our study area. For your remoteness analysis, select only the steps that are relevant based on the data you have / need.**
+
+
+![](".png")
 
 ## 1. Prepare input data
+
+### 1.1 Get shapefile of study data
+
+GADM provides spatial data for all countries and their sub-divisions. You can download your required country shape file either from their [website](https://gadm.org/download_country.html) or from inside R.
+
+
+## 2.1 Define parameters
+
+```{r}
+# Set path to working directory
+wd <- "D:/Dateien/Uni/Eagle_Master/Hiwijob_IZW/Remoteness_tutorial"
+
+# For GADM download set name, iso code and level for required country
+name <- "cambodia"
+iso <- "KHM"
+level <- 1
+
+# Set buffer that should be applied to aoi
+buffer <- 10000
+
+# Set EPSG code of a metric CRS (e.g utm)
+crs_m <- 32648
+```
+  
+  
+## 2.2 Country data (gadm)
+
+**Download country data.**  
+
+
+```{r}
+# Get or import country data
+country <- geodata::gadm(iso, level=level, path = tempdir())
+country <- st_as_sf(country)
+
+# # Export to folder
+# st_write(country,
+#          dsn = file.path(wd, "data/gadm/"),
+#          layer = paste0("gadm_", name, "_", level),
+#          driver = "ESRI Shapefile")
+```
+  
+**Select or import aoi.**  
+In this tutorial the province of Kâmpóng Thum is chosen as aoi. Define/import your aoi for which you want to calculate remoteness.
+
+```{r}
+# Select province as example aoi, or import your Area of Interest
+province <- "Kâmpóng Thum"
+aoi <- country[(country$NAME_1 %in% province),]
+
+# Export to folder
+# st_write(aoi,
+#          dsn = file.path(wd, "data/gadm/"),
+#          layer = "aoi",
+#          driver = "ESRI Shapefile")
+
+```
 
 
 
