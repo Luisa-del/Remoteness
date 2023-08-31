@@ -183,7 +183,7 @@ Import the filtered osm roads to QGIS and follow instructions from [here](#13-Co
 * The larger the study area, the longer it can take to export the data.  
   
 
-[Follow this link to open the remoteness analysis script in Google Earth Engine.](https://code.earthengine.google.com/a0675d2189dc63bee738b16d84e18ec9)
+[Follow this link to open the remoteness analysis script in Google Earth Engine.](https://code.earthengine.google.com/01a02d94f8118aa913d8c651da512fdc)
 
 
 ### 2.1 Run demo
