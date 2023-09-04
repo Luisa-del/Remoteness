@@ -8,13 +8,13 @@ This is a step-by-step tutorial on how to perform a remoteness analysis for user
 
 ## Overview
 
-* Remoteness indicates the distance to roads, but takes into account the cost to walk through terrain. It can serve as anthropogenic factor in wildlife studies, where it has been shown to be an important driver of species occurrence.
+* Remoteness indicates the distance to starting points (e.g drivable roads), in hours. Other than linear distance measures it takes into account the cost to walk through terrain. It can serve as anthropogenic factor in wildlife studies, where it has been shown to be an important driver of species occurrence.
   
-* Costs are calculated from a hiking function that considers slope. The function is also defined to take metabolic costs into account, because it has been shown that humans are typically not following least-time routes, especially in mountainous areas.
+* Costs are calculated from a hiking function that considers slope. The function is also defined to take metabolic costs into account, because it has been shown that humans are typically not following least-time routes, especially in mountainous areas. Cost raster pixel values have the unit hour per minute.
   
-* Drivable roads can serve as starting points from where the costs are then added up (cumulative costs) in order to assess remoteness. This can be points along drivable roads from OpenStreetMap (osm), or GPS points.
+* Drivable roads can serve as starting points from where the costs are then added up (cumulative costs) in order to assess remoteness. This can be points along drivable roads from OpenStreetMap (osm), GPS points, or other starting points like villages, streams or borders.
 
-* The drivable roads should cover a certain buffer area around the study area. This ensures that roads in the vicinity of the study area are also included in the calculation of remoteness and avoids distorted remoteness values at the border of the study area.
+* The starting points should cover a certain buffer area around the study area. This ensures that starting points in the vicinity of the study area are also included in the calculation of remoteness and avoids distorted remoteness values at the border of the study area.
 
 * Some areas like water bodies or other inaccessible areas affect accessibility and can be masked out prior to the analysis.
 
@@ -25,23 +25,23 @@ This is a step-by-step tutorial on how to perform a remoteness analysis for user
 
 ![](".png")
 
-**Useful information before performing remoteness analysis for own study area**
+**Useful information before performing remoteness analysis for own study area.**
 
 1. **Store AOI as shape file.** You should save your study area as a shape file on your local computer. [GADM](https://gadm.org/download_country.html) provides free and easy accessible country data at different subdivision levels.
   
 2. **Apply sufficient buffer around study area.** A buffer area of 10 km around the study area was considered large enough to ensure that roads that have a relevant influence on the remoteness values at the border of the AOI are included in the analysis. The buffer value can be modified by the user.
 
-3. **Choose software to download & prepare osm data (size dependent!).** You need to try what is more suitable for you and your analysis. The larger the study area and amount of data, the longer the processing!
-    + Simplest is to use the **"QuickOSM-plugin"** from QGIS for *smaller* areas like national parks or province borders. Here you can download the data already at the size of your buffered AOI and filter it by drivable road categories (see [section 1](#1-Prepare-input-data-in-QGIS)). If the study area is *too large* for QuickOSM (like a whole country), you can split it into smaller tiles, run it again for each tile, and merge the osm data later on.
-    + Alternatively download and prepare the data in R. Here you can download the data on a country level, filter it by drivable road categories and then optionally further clip or merge to your buffered AOI ([see section 2](#1-Prepare-input-data-in-R)). 
+3. **Choose software for osm data download & preparation (size dependent!).** You need to try what is more suitable for you and your analysis. The larger the study area and amount of osm data, the longer the processing!
+    + **Recommended:** Simplest is to use the **"QuickOSM-plugin"** from QGIS for *smaller* areas like national parks or provinces. Here you can download the data already at the size of your buffered AOI and filter it by drivable road categories (see [section 1](#1-Prepare-input-data-in-QGIS)). If the study area is *too large* for QuickOSM (like a whole country), you can split it into smaller tiles, run it again for each tile, and merge the osm data later on.
+    + Alternatively download and prepare the data in R. Here you can download the osm data on a country level, filter it by drivable road categories and then optionally further clip or merge to your buffered AOI ([see section 2](#1-Prepare-input-data-in-R)). 
 
 4. **If possible (!) verify osm roads.** OpenStreetMap is a community-based, freely available, editable map service and provides free and open source geographical data sets of natural or man made features. Given that it is edited mainly by volunteers with different mapping skills, the completeness and quality of its annotations are heterogeneous across different geographical locations, and updates are more regularly in urban areas than in rural areas. If possible, verify whether the selected road data represents the road network of the study area as good as possible. 
 
-5. **Convert osm drivable roads to starting points.** Use the **"Points along geometry"-tool** from QGIS to convert drivable road lines to equally spaced points. Sufficient spacing should be 50 or 100 meters.
+5. **Convert lines (like osm drivable roads) to starting points.** Use the **"Points along geometry"-tool** from QGIS to convert drivable road lines to equally spaced points. Sufficient spacing should be 50 or 100 meters.
 
 6. **Carefully select data for GEE upload.** Only upload starting points and study area (not buffered study area!). Apply the same buffer in the GEE script that was used to create the starting points (see section 4).
 
-7. **GPS points available?** In case you want to use other starting point for your analysis (e.g GPS points along the road network, villages,...) you only need to upload your study area and the starting point dataset to GEE. Consider a buffer!
+7. **GPS points available?** In case you want to use other starting point for your analysis (e.g GPS points along the roads, villages,...) you only need to upload your study area and the starting point dataset to GEE. Consider the buffer!
 
 ![](".png")
 
