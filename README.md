@@ -90,7 +90,7 @@ Osm roads are multiline features, but the algorithm that calculates remoteness r
 
 ### 1.2 Prepare input data in R
 
-![#### a. Download study area
+#### a. Download study area
 
 GADM provides spatial data for all countries and their sub-divisions. You can download your required country shape file from R.
 
@@ -155,7 +155,7 @@ tba...
 
 #### c. Convert lines to points 
 
-Import the filtered osm roads to QGIS and follow instructions from [here](#13-Convert-lines-to-points)]()
+Import the filtered osm roads to QGIS and follow instructions from [here](#13-Convert-lines-to-points)
 
 ![](".png")
 
